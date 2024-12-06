@@ -1,0 +1,73 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Dashboard</h1>
+
+    <!-- Success Message -->
+    <div id="message" class="alert alert-success" style="display:none;"></div>
+
+    <!-- Event Creation Form -->
+    <section id="event-creation">
+      <h2>Create New Event</h2>
+      <form id="event-form">
+        <input type="text" id="event-name" class="form-control" placeholder="Event Name" required>
+        <input type="text" id="event-description" class="form-control" placeholder="Event Description" required>
+        <input type="date" id="event-date" class="form-control" required>
+        <input type="number" id="event-capacity" class="form-control" placeholder="Capacity" required>
+        <button type="submit" class="btn btn-success">Add Event</button>
+      </form>
+    </section>
+
+    <!-- Event Table (View all Events) -->
+    <section id="event-table">
+      <h2>All Events</h2>
+      <table id="events-table" class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Capacity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Update Event Capacity -->
+    <section id="update-event">
+      <h2>Update Event Capacity</h2>
+      <form id="update-capacity-form">
+        <select id="event-id-update" class="form-control" required>
+          <!-- Dynamic list of events for capacity update -->
+        </select>
+        <input type="number" id="new-capacity" class="form-control" placeholder="New Capacity" required>
+        <button type="submit" class="btn btn-primary">Update Capacity</button>
+      </form>
+    </section>
+
+    <!-- Delete Event -->
+    <section id="delete-event">
+      <h2>Delete Event</h2>
+      <form id="delete-event-form">
+        <select id="event-id-delete" class="form-control" required>
+          <!-- Dynamic list of events for deletion -->
+        </select>
+        <button type="submit" class="btn btn-danger">Delete Event</button>
+      </form>
+    </section>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

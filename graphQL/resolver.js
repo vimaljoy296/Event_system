@@ -1,8 +1,8 @@
 const sqlite3 = require("sqlite3").verbose();
 const jwt = require("jsonwebtoken");
 const path = require("path");
-const db = new sqlite3.Database(path.resolve(__dirname, "../backend/events.db"));
 
+const db = new sqlite3.Database(path.resolve(__dirname, "../backend/events.db"));
 const SECRET_KEY = "mysecretkey";
 
 const resolvers = {
@@ -25,10 +25,22 @@ const resolvers = {
         });
       });
     },
+
+    fetchUserEvents: async (_, { userId }) => {
+      return new Promise((resolve, reject) => {
+        db.all(
+          "SELECT Events.* FROM Events INNER JOIN EventParticipants ON Events.id = EventParticipants.eventId WHERE EventParticipants.userId = ?",
+          [userId],
+          (err, rows) => {
+            if (err) return reject(new Error("Failed to fetch user events."));
+            resolve(rows);
+          }
+        );
+      });
+    },
   },
 
   Mutation: {
-    // Login Mutation
     login: async (_, { email, password }) => {
       return new Promise((resolve, reject) => {
         db.get(
@@ -49,7 +61,6 @@ const resolvers = {
       });
     },
 
-    // Add Event Mutation (Admin Only)
     addEvent: async (_, { name, description, date, capacity }, { token }) => {
       if (!token) throw new Error("Authentication required.");
 
@@ -57,10 +68,6 @@ const resolvers = {
         const user = jwt.verify(token, SECRET_KEY);
         if (user.role !== "Admin") {
           throw new Error("Authorization failed: Only admins can add events.");
-        }
-
-        if (!name || !description || !date || capacity <= 0) {
-          throw new Error("Invalid input. Please provide valid event details.");
         }
 
         return new Promise((resolve, reject) => {
@@ -83,7 +90,6 @@ const resolvers = {
       }
     },
 
-    // Delete Event Mutation (Admin Only)
     deleteEvent: async (_, { eventId }, { token }) => {
       if (!token) throw new Error("Authentication required.");
 
@@ -110,15 +116,12 @@ const resolvers = {
       }
     },
 
-    // Register for Event Mutation
     registerForEvent: async (_, { eventId, userId }, { token }) => {
       if (!token) throw new Error("Authentication required.");
 
       try {
         const user = jwt.verify(token, SECRET_KEY);
-        if (!user) throw new Error("Authentication failed.");
 
-        // Check if the user exists
         return new Promise((resolve, reject) => {
           db.get("SELECT * FROM Users WHERE id = ?", [userId], (err, userRecord) => {
             if (err) return reject(new Error("Failed to fetch user."));
@@ -145,7 +148,12 @@ const resolvers = {
                   );
                   stmt.run(eventId, userId, function (err) {
                     if (err) return reject(new Error("Failed to register."));
-                    resolve({ eventId, userId });
+
+                    // Fetch the updated event data after successful registration
+                    db.get("SELECT * FROM Events WHERE id = ?", [eventId], (err, updatedEvent) => {
+                      if (err) return reject(new Error("Failed to fetch updated event."));
+                      resolve(updatedEvent);  // Return the updated event
+                    });
                   });
                 }
               );
@@ -157,7 +165,6 @@ const resolvers = {
       }
     },
 
-    // Add User Mutation (Admin Only)
     addUser: async (_, { name, email, password, role }, { token }) => {
       if (!token) throw new Error("Authentication required.");
 
@@ -191,7 +198,6 @@ const resolvers = {
       }
     },
 
-    // Update Event Capacity Mutation (Admin Only)
     updateEventCapacity: async (_, { eventId, capacity }, { token }) => {
       if (!token) throw new Error("Authentication required.");
 
@@ -218,7 +224,7 @@ const resolvers = {
                 name: event.name,
                 description: event.description,
                 date: event.date,
-                capacity: capacity, // updated capacity
+                capacity,
               });
             });
           });
