@@ -7,7 +7,7 @@ const typeDefs = gql`
         description: String!
         date: String!
         capacity: Int!
-        participants: [User!]!  # Make sure to resolve this in the resolver
+        participants: [User!]!
     }
 
     type User {
@@ -25,15 +25,16 @@ const typeDefs = gql`
     type Query {
         fetchEvents: [Event!]!
         fetchUserDetails(userId: ID!): User
+        fetchUserEvents(userId: ID!): [Event!]  # New query for fetching events registered by a user
     }
 
     type Mutation {
         login(email: String!, password: String!): AuthPayload!
         addEvent(name: String!, description: String!, date: String!, capacity: Int!): Event
         deleteEvent(eventId: ID!): Event
-        registerForEvent(eventId: ID!, userId: ID!): Event
-        addUser(name: String!, email: String!, password: String!, role: String!): User  # New mutation to add a user
-        updateEventCapacity(eventId: ID!, capacity: Int!): Event  # New mutation to update event capacity
+        registerForEvent(eventId: ID!, userId: ID!): Event  # Ensure it returns an Event
+        addUser(name: String!, email: String!, password: String!, role: String!): User
+        updateEventCapacity(eventId: ID!, capacity: Int!): Event
     }
 `;
 
